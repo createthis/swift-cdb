@@ -1,6 +1,12 @@
 import XCTest
 @testable import cdb
 
+func randStr() -> String {
+  let length = Int.random(in: 8...12)
+  let letters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
+  return String((0..<length).map { _ in letters.randomElement()! })
+}
+
 func cdbmakeTrue(filePath: String, data: [String: String]) throws {
   let inputFileName = "input.txt"
   let tempFileName = "\(filePath).tmp"
@@ -36,7 +42,7 @@ func cdbmakeTrue(filePath: String, data: [String: String]) throws {
   process.waitUntilExit()
 
   if process.terminationStatus != 0 {
-    throw NSError(domain: "CDBMakeError", code: Int(process.terminationStatus), userInfo: [NSLocalizedDescriptionKey: "cdbmake command failed"])
+    throw NSError(domain: "CDBWriteError", code: Int(process.terminationStatus), userInfo: [NSLocalizedDescriptionKey: "cdbmake command failed"])
   }
 }
 
@@ -49,8 +55,11 @@ final class CDBTests: XCTestCase {
 
   func validateCDB(data: [String: String], filePath: String, referenceFilePath: String) throws {
     // Create CDB using custom implementation
-    let cdbMaker = CDBMaker(data: data)
-    try cdbMaker.writeCDB(to: filePath)
+    let writer = try CDBWriter(filePath: filePath)
+    for (key, value) in data {
+      try writer.put(key: key, value: value)
+    }
+    try writer.finalize();
 
     // Create CDB using original cdbmake utility
     try cdbmakeTrue(filePath: referenceFilePath, data: data)
@@ -66,10 +75,10 @@ final class CDBTests: XCTestCase {
     XCTAssertEqual(process.terminationStatus, 0, "Files are different")
 
     // Check if all values are correctly obtained
-    let cdbReader = try CDBReader(filePath: filePath, posHeader: 0)
+    let reader = try CDBReader(filePath: filePath, posHeader: 0)
 
     for (key, value) in data {
-      let valueFromCdb = try cdbReader.cdbget(key: key)
+      let valueFromCdb = try reader.cdbget(key: key)
       XCTAssertEqual(String(data: valueFromCdb, encoding: .utf8), value, "diff: \(key)")
     }
 
@@ -77,17 +86,17 @@ final class CDBTests: XCTestCase {
     for _ in 0..<6 {
       let key = randStr()
       if data[key] == nil {
-        XCTAssertThrowsError(try cdbReader.cdbget(key: key), "found: \(key)")
+        XCTAssertThrowsError(try reader.cdbget(key: key), "found: \(key)")
       }
     }
   }
 
-  func test_CDBMakerWriteCDB_withSmallFixedData() throws {
+  func test_CDBWriter_withSmallFixedData() throws {
     let data = ["key1": "value1", "key2": "value2", "key3": "value3"]
     try validateCDB(data: data, filePath: "my.cdb", referenceFilePath: "true.cdb")
   }
 
-  func test_CDBMakerWriteCDB_withLargerRandomData() throws {
+  func test_CDBWriter_withLargerRandomData() throws {
     let n = 1000
     var data = [String: String]()
     for _ in 0..<n {

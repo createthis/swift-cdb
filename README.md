@@ -34,6 +34,16 @@ Query this cdb using the C version of `cdbget:
 cdbget smtp/tcp < test.cdb && echo ''
 ```
 
+See `Usage` below for how to perform the same `cdbget` in swift.
+
+## Usage
+
+### Naming
+Swift's package system doesn't appear to have a good way to deal with namespace conflicts, so the classes are manually
+prefixed with `CDB`. Example: `CDBReader`. `get` is also a reserved keyword, so we have to live with triply redundant 
+`cdbget()`.
+
+### CDBReader
 Query it using this Swift library:
 ```swift
 import cdb
@@ -41,6 +51,20 @@ import cdb
 let cdbReader = try CDBReader(filePath: "test.cdb", posHeader: 0)
 let valueFromCdb = try cdbReader.cdbget(key: "smtp/tcp")
 print("valueFromCdb=\(valueFromCdb)")
+```
+
+### CDBWriter
+Alternatively, to create a cdb using swift, do something like this:
+
+```swift
+import cdb
+
+let data = ["key1": "value1", "key2": "value2", "key3": "value3"]
+let cdbWriter = try CDBWriter(filePath: "my.cdb")
+for (key, value) in data {
+  try cdbWriter.put(key: key, value: value)
+}
+try cdbWriter.finalize();
 ```
 
 ## Automated compatibility testing
