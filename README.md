@@ -10,16 +10,20 @@ Some links for you:
 2. http://www.cse.yorku.ca/~oz/hash.html
 3. https://www.unixuser.org/~euske/doc/cdbinternals/index.html
 
-# Getting Started
-Install the C version of `cdb`:
+# Getting started
+
+## Installing and using C library
+The original C version of `cdb` (written by DJB) is only necessary if you want to prove to 
+yourself that this Swift library is compatible:
 
 ```bash
 brew install cdb
 ```
 
-The unit tests need `cdbmake` from this library.
+The Swift unit tests need `cdbmake` from this library.
 
-Also, use it to make a `test.cdb` file from `/etc/services`:
+## Manual compatibility testing
+Use the C library to make a `test.cdb` file from `/etc/services`:
 ```bash
 cdbmake-sv test.cdb test.tmp < /etc/services
 ```
@@ -30,7 +34,19 @@ Query this cdb using the C version of `cdbget:
 cdbget smtp/tcp < test.cdb && echo ''
 ```
 
-Finally, try the swift version:
+Query it using this Swift library:
+```swift
+import cdb
+
+let cdbReader = try CDBReader(filePath: "test.cdb", posHeader: 0)
+let valueFromCdb = try cdbReader.cdbget(key: "smtp/tcp")
+print("valueFromCdb=\(valueFromCdb)")
+```
+
+## Automated compatibility testing
+The Swift unit tests need `cdbmake` from the original C library, so install that first (see above).
+
+Finally, you can test that the output of this Swift library matches the output of the original C version:
 ```bash
-swift run
+swift test
 ```

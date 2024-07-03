@@ -5,10 +5,20 @@ import PackageDescription
 
 let package = Package(
     name: "cdb",
+    products: [
+        .library(
+            name: "cdb",
+            targets: ["cdb"]
+        ),
+    ],
     targets: [
-        // Targets are the basic building blocks of a package, defining a module or a test suite.
-        // Targets can depend on other targets in this package and products from dependencies.
-        .executableTarget(
-            name: "cdb"),
+        .target(
+            name: "cdb",
+            dependencies: []
+        ),
+        .testTarget(
+            name: "cdbTests",
+            dependencies: ["cdb"]
+        ),
     ]
 )
