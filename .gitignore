@@ -10,6 +10,15 @@ DerivedData/
 # test stuff
 test.py
 test.cdb
+my.cdb
+true.cdb
+input.txt
+test.js
+test2.py
+test3.py
+node_modules
+package.json
+package-lock.json
 
 # vim
 *.swp

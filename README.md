@@ -17,7 +17,9 @@ Install the C version of `cdb`:
 brew install cdb
 ```
 
-Use it to make a `test.cdb` file from `/etc/services`:
+The unit tests need `cdbmake` from this library.
+
+Also, use it to make a `test.cdb` file from `/etc/services`:
 ```bash
 cdbmake-sv test.cdb test.tmp < /etc/services
 ```
@@ -30,6 +32,5 @@ cdbget smtp/tcp < test.cdb && echo ''
 
 Finally, try the swift version:
 ```bash
-# result should be 25
 swift run
 ```
