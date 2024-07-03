@@ -1,6 +1,6 @@
 import Foundation
 
-func calcHash(_ key: Data) -> UInt32 {
+private func calcHash(_ key: Data) -> UInt32 {
   var hash: UInt32 = 5381
   for byte in key {
     hash = ((hash << 5) &+ hash) ^ UInt32(byte)
@@ -12,7 +12,7 @@ public class CDBReader {
   let fileHandle: FileHandle
   let posHeader: UInt64
 
-  init(filePath: String, posHeader: UInt64) throws {
+  public init(filePath: String, posHeader: UInt64) throws {
     self.fileHandle = try FileHandle(forReadingFrom: URL(fileURLWithPath: filePath))
     self.posHeader = posHeader
   }
@@ -21,13 +21,13 @@ public class CDBReader {
     fileHandle.closeFile()
   }
 
-  func readUInt32(offset: UInt64) -> UInt32 {
+  private func readUInt32(offset: UInt64) -> UInt32 {
     fileHandle.seek(toFileOffset: offset)
     let data = fileHandle.readData(ofLength: 4)
     return data.withUnsafeBytes { $0.load(as: UInt32.self).littleEndian }
   }
 
-  func cdbget(key: String) throws -> Data {
+  public func cdbget(key: String) throws -> Data {
     let keyData = key.data(using: .utf8)!
     let h = calcHash(keyData)
 
@@ -75,7 +75,7 @@ public class CDBWriter {
   private var p: UInt64
   private var bucket: [[(UInt32, UInt64)]]
 
-  init(filePath: String) throws {
+  public init(filePath: String) throws {
     self.filePath = filePath
     self.tempFilePath = Self.generateTemporaryFilePath()
     let fileManager = FileManager.default
@@ -96,7 +96,7 @@ public class CDBWriter {
     fileHandle.seek(toFileOffset: self.p)
   }
 
-  func put(key: String, value: String) throws {
+  public func put(key: String, value: String) throws {
     let keyData = key.data(using: .utf8)!
     let valueData = value.data(using: .utf8)!
 
@@ -114,7 +114,7 @@ public class CDBWriter {
     p += totalLength
   }
 
-  func finalize() throws {
+  public func finalize() throws {
     var posHash = p
 
     for b1 in bucket {
