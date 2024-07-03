@@ -43,6 +43,28 @@ Swift's package system doesn't appear to have a good way to deal with namespace 
 prefixed with `CDB`. Example: `CDBReader`. `get` is also a reserved keyword, so we have to live with triply redundant 
 `cdbget()`.
 
+### Package.swift
+
+```swift
+// swift-tools-version:5.5
+import PackageDescription
+
+let package = Package(
+    name: "MyProject",
+    dependencies: [
+        .package(url: "https://github.com/createthis/swift-cdb.git", from: "1.0.0"),
+    ],
+    targets: [
+        .target(
+            name: "MyProject",
+            dependencies: [
+                .product(name: "cdb", package: "swift-cdb")
+            ]
+        ),
+    ]
+)
+```
+
 ### CDBReader
 Query it using this Swift library:
 ```swift
