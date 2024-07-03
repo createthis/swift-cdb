@@ -66,16 +66,19 @@ let package = Package(
 ```
 
 ### CDBReader
+
 Query it using this Swift library:
+
 ```swift
 import cdb
 
 let cdbReader = try CDBReader(filePath: "test.cdb", posHeader: 0)
 let valueFromCdb = try cdbReader.cdbget(key: "smtp/tcp")
-print("valueFromCdb=\(valueFromCdb)")
+print("valueFromCdb=\(String(data: valueFromCdb, encoding: .utf8)!)")
 ```
 
 ### CDBWriter
+
 Alternatively, to create a cdb using swift, do something like this:
 
 ```swift
